@@ -1,0 +1,10 @@
+{
+    "xml_path": "/location/to/xml/files",
+    "xml_jahr": "2013",
+    "dbname": "dbname",
+    "user": "dbuser",
+    "password": "changePW",
+    "host": "dbhost",
+    "port": 5432,
+    "osm_user_agent": "useragent"
+}
