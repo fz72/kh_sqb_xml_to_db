@@ -1,7 +1,5 @@
 from xmlToReader import xmlToReader
 
-
-
 reader = xmlToReader()
 
 reader.main()

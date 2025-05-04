@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as Xet
+import pandas as pd
 import requests
 import os
 import io
 import json
-import pandas as pd
 from datetime import datetime
 
 from docutils.nodes import TextElement
@@ -55,7 +55,7 @@ class xmlToReader:
 
     def save_to_file(self):
 
-        df = pd.DataFrame(rows, columns=self.cols)
+        df = pd.DataFrame(self.rows, columns=self.cols)
 
         # Aktuelles Datum und Uhrzeit als String
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
