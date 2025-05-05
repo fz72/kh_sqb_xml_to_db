@@ -5,6 +5,7 @@ import os
 import io
 import json
 from datetime import datetime
+import time
 
 from docutils.nodes import TextElement
 #from salt.states.dellchassis import switch
@@ -53,6 +54,9 @@ class xmlToReader:
             "jahr": self.cfg.xml_jahr
         })
 
+        kh_daten_rows = []
+        bf_rows = []
+
         for row in self.rows:
             # Zeile einfügen
 
@@ -71,7 +75,9 @@ class xmlToReader:
                 if key_kommentar in row:
                     bf_row["bf_kommentar"] = row[key_kommentar]
 
-                db.insert_row("kh_bf", bf_row)
+                if bf_row["bf_status"] == True or "bf_kommentar" in bf_row:
+                    #db.insert_row("kh_bf", bf_row)
+                    bf_rows.append(bf_row)
 
                 # Nicht vorhandene Spalten löschen                
                 if key in row:
@@ -80,10 +86,21 @@ class xmlToReader:
                 if key_kommentar in row:
                     del row[key_kommentar]
 
-
-            db.insert_row("kh_daten", row)
+            #db.insert_row("kh_daten", row)
+            kh_daten_rows.append(row)
 
         
+        # Jetzt Batch-Inserts durchführen
+        start = time.time()
+        print(f"{len(bf_rows)} Zeilen in 'kh_bf' einfügen.")
+        db.insert_rows_copy("kh_bf", bf_rows)
+        print(f"Einfügen von kh_bf dauerte {time.time() - start:.2f} Sekunden")
+
+        start = time.time()
+        print(f"{len(kh_daten_rows)} Zeilen in 'kh_daten' einfügen.")
+        db.insert_rows_copy("kh_daten", kh_daten_rows)
+        print(f"Einfügen von kh_daten dauerte {time.time() - start:.2f} Sekunden")
+
         # Schließe die Verbindung zur Datenbank
         db.close()
 
@@ -241,7 +258,7 @@ class xmlToReader:
                         row["landkreis"] = plz_data.landkreis
                         row["bundesland_plz"] = plz_data.bundesland
 
-                row["art_nummer"] = ""
+                row["art_nummer"] = 0
                 for node in xmlparse.iter("Krankenhaustraeger"):
                     elem = node.find("Name")
                     if elem is not None:

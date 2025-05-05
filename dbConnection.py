@@ -232,6 +232,57 @@ class PostgreSQLConnection:
         except Exception as e:
             self.conn.rollback()  # Rollback bei Fehler
             print(f"Fehler beim Einfügen der Zeile: {e}")
+
+    def insert_rows(self, table, data_list):
+        if self.conn is None or not data_list:
+            return
+
+        if not isinstance(data_list, list) or not isinstance(data_list[0], dict):
+            raise ValueError("Die Eingabedaten müssen eine Liste von Dictionaries sein.")
+
+        # Spaltennamen aus der ersten Zeile entnehmen
+        columns = list(data_list[0].keys())
+        values = [[row[col] for col in columns] for row in data_list]
+
+        insert_query = sql.SQL("INSERT INTO {} ({}) VALUES ({})").format(
+            sql.Identifier(table),
+            sql.SQL(', ').join(map(sql.Identifier, columns)),
+            sql.SQL(', ').join(sql.Placeholder() for _ in columns)
+        )
+
+        try:
+            self.cur.executemany(insert_query.as_string(self.conn), values)
+            self.conn.commit()
+            print(f"{len(data_list)} Zeilen erfolgreich in '{table}' eingefügt.")
+        except Exception as e:
+            self.conn.rollback()
+            print(f"Fehler beim Batch-Insert: {e}")
+
+    def insert_rows_copy(self, table, data_list):
+        if self.conn is None or not data_list:
+            return
+
+        if not isinstance(data_list, list) or not isinstance(data_list[0], dict):
+            raise ValueError("Die Eingabedaten müssen eine Liste von Dictionaries sein.")
+
+        columns = list(data_list[0].keys())
+
+        # CSV-Daten in einen StringIO-Puffer schreiben (im Speicher)
+        buffer = io.StringIO()
+        writer = csv.writer(buffer, delimiter='\t', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        
+        for row in data_list:
+            writer.writerow([row[col] if row[col] is not None else r'\N' for col in columns])  # \N für NULL in PostgreSQL COPY
+
+        buffer.seek(0)  # Zurück zum Anfang des Puffers
+
+        try:
+            self.cur.copy_from(buffer, table, columns=columns, null='\\N')
+            self.conn.commit()
+            print(f"{len(data_list)} Zeilen erfolgreich per COPY in '{table}' eingefügt.")
+        except Exception as e:
+            self.conn.rollback()
+            print(f"Fehler beim COPY-Insert: {e}")
     
     def delete_row(self, table, conditions):
         """
