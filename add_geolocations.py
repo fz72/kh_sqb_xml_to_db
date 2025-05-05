@@ -24,6 +24,8 @@ class GeoLocator:
         # Erstelle die Tabelle
         addresses = db.fetch_missing_location()
 
+        print(f"Es fehlen aktuell noch { len( addresses )} Adressen")
+
         for address in addresses:
             row = {}
 
