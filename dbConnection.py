@@ -60,7 +60,7 @@ class PostgreSQLConnection:
             landkreis varchar(255),
             krankenhaustraeger_name text,
             art varchar(100),
-            art_nummer varchar(50),
+            art_nummer int,
             sonstiges varchar(255),
             lehrstatus varchar(50),
             akademisches_lehrkrankenhaus varchar(50),
@@ -75,9 +75,9 @@ class PostgreSQLConnection:
             sp04_Stationaere_anzahl_vk decimal(10,2),
             filename varchar(255),\n"""
 
-        for i in range(1, 43):
-            create_table_query += "bf" + '{:02}'.format(i) + " integer,\n"
-            create_table_query += "bf" + '{:02}'.format(i) + "_kommentar varchar(500),\n"
+        #for i in range(1, 43):
+        #    create_table_query += "bf" + '{:02}'.format(i) + " integer,\n"
+        #    create_table_query += "bf" + '{:02}'.format(i) + "_kommentar varchar(500),\n"
 
         create_table_query += """
             PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt)
@@ -86,11 +86,77 @@ class PostgreSQLConnection:
         try:
 
             # Tabelle löschen (falls sie existiert)
-            #self.cur.execute("DROP TABLE IF EXISTS kh_daten CASCADE;")
+            # self.cur.execute("DROP TABLE IF EXISTS kh_daten CASCADE;")
 
             self.cur.execute(create_table_query)
             self.conn.commit()
             print("Tabelle 'kh_daten' wurde erfolgreich erstellt.")
+        except Exception as e:
+            print(f"Fehler beim Erstellen der Tabelle: {e}")
+            self.conn.rollback()
+
+    def create_bf_table(self):
+
+        if self.conn == None:
+            return
+
+        """Erstellt die Tabelle 'kh_bf' in der Datenbank."""
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS kh_bf (
+            jahr INTEGER NOT NULL,
+            ik BIGINT NOT NULL,
+            standortnummer BIGINT,
+            standortnummer_alt BIGINT,
+            bf VARCHAR(4),
+            bf_status BOOLEAN,
+            bf_kommentar VARCHAR(512),
+            PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt, bf)
+        );
+        """
+
+        try:
+
+            # Tabelle löschen (falls sie existiert)
+            #self.cur.execute("DROP TABLE IF EXISTS kh_bf CASCADE;")
+
+            self.cur.execute(create_table_query)
+            self.conn.commit()
+            print("Tabelle 'kh_bf' wurde erfolgreich erstellt.")
+        except Exception as e:
+            print(f"Fehler beim Erstellen der Tabelle: {e}")
+            self.conn.rollback()
+
+    def create_art_table(self):
+
+        if self.conn == None:
+            return
+
+        """Erstellt die Tabelle 'kh_traeger_art' in der Datenbank."""
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS kh_traeger_art (
+            art_nummer INT NOT NULL,
+            art_text VARCHAR(100),
+            PRIMARY KEY (art_nummer)
+        );
+        """
+
+        insert_data_query = """
+        INSERT INTO kh_traeger_art (art_nummer, art_text) VALUES
+            (1, 'öffentlich'),
+            (2, 'freigemeinnützig'),
+            (3, 'privat')
+        ON CONFLICT (art_nummer) DO NOTHING;
+        """
+
+        try:
+
+            # Tabelle löschen (falls sie existiert)
+            #self.cur.execute("DROP TABLE IF EXISTS kh_bf CASCADE;")
+
+            self.cur.execute(create_table_query)
+            self.cur.execute(insert_data_query)
+            self.conn.commit()
+            print("Tabelle 'kh_bf' wurde erfolgreich erstellt.")
         except Exception as e:
             print(f"Fehler beim Erstellen der Tabelle: {e}")
             self.conn.rollback()

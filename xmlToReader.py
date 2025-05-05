@@ -42,13 +42,47 @@ class xmlToReader:
         # Erstelle die Tabelle
         db.create_table()
 
+        db.create_bf_table()
+
+        db.create_art_table()
+
         db.delete_row("kh_daten", {
+            "jahr": self.cfg.xml_jahr
+        })
+        db.delete_row("kh_bf", {
             "jahr": self.cfg.xml_jahr
         })
 
         for row in self.rows:
             # Zeile einfügen
+
+            for i in range(1, 43):
+                bf_row = {}
+                bf_row["jahr"] = row["jahr"]
+                bf_row["ik"] = row["ik"]
+                bf_row["standortnummer"] = row["standortnummer"]
+                bf_row["standortnummer_alt"] = row["standortnummer_alt"]
+                bf_row["bf"] = "bf" + '{:02}'.format(i)
+
+                key = bf_row["bf"]
+                key_kommentar = key + "_kommentar"
+
+                bf_row["bf_status"] = bool(row[key])
+                if key_kommentar in row:
+                    bf_row["bf_kommentar"] = row[key_kommentar]
+
+                db.insert_row("kh_bf", bf_row)
+
+                # Nicht vorhandene Spalten löschen                
+                if key in row:
+                    del row[key]
+
+                if key_kommentar in row:
+                    del row[key_kommentar]
+
+
             db.insert_row("kh_daten", row)
+
         
         # Schließe die Verbindung zur Datenbank
         db.close()
@@ -219,11 +253,11 @@ class xmlToReader:
                         row["art"] = elem.text
                         match (elem.text):
                             case "freigemeinnützig":
-                                row["art_nummer"] = "1"
+                                row["art_nummer"] = 1
                             case "öffentlich":
-                                row["art_nummer"] = "2"
+                                row["art_nummer"] = 2
                             case "privat":
-                                row["art_nummer"] = "3"
+                                row["art_nummer"] = 3
 
                     elem = traeger_art.find("Sonstiges")
                     if elem is not None:
@@ -231,7 +265,7 @@ class xmlToReader:
                         if row["art_nummer"] == "":
                             match(elem.text):
                                 case "öffentlich-rechtliche-trägerschaft":
-                                    row["art_nummer"] = "2"
+                                    row["art_nummer"] = 2
 
 
                 kh_art = xmlparse.find("krankenhaus_art")
@@ -280,7 +314,7 @@ class xmlToReader:
                 for node in xmlparse.iter("Barrierefreiheit"):
                     for aspekt in node.iter("Barrierefreiheit_Aspekt"):
                         bfkey = aspekt.find("BF_Schluessel").text.lower()
-                        row[bfkey] = "1"
+                        row[bfkey] = 1
 
                         if aspekt.find("Erlaeuterungen") is not None:
                             row[bfkey + "_kommentar"] = aspekt.find("Erlaeuterungen").text
@@ -289,7 +323,7 @@ class xmlToReader:
                                     aspekt.find("Erlaeuterungen").text == "nicht bekannt" or
                                     aspekt.find("Erlaeuterungen").text == "nein" or
                                     aspekt.find("Erlaeuterungen").text == "Nein"):
-                                row[bfkey] = "0"
+                                row[bfkey] = 0
 
                 personal = xmlparse.find("Personal_des_Krankenhauses")
                 if personal is not None:
