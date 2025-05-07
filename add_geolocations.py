@@ -11,6 +11,18 @@ class GeoLocator:
         # Initialisieren Sie den Geocoder
         self.geolocator = Nominatim(user_agent=self.cfg.osm_user_agent)
 
+    def geocode_with_retry(self, address, max_retries=3, delay=1):
+        attempts = 0
+        while attempts < max_retries:
+            try:
+                return self.geolocator.geocode(address, timeout=10)
+            except (GeocoderTimedOut, GeocoderUnavailable) as e:
+                attempts += 1
+                print(f"[{attempts}/{max_retries}] Fehler bei Geocoding: {e}. Neuer Versuch in {delay} Sekunde(n)...")
+                time.sleep(delay)
+        print(f"Adresse konnte nach {max_retries} Versuchen nicht geocodiert werden: {address}")
+        return None
+
     def add_geolocation(self):
 
         db = PostgreSQLConnection(self.cfg.dbname, self.cfg.dbuser, self.cfg.dbpassword, self.cfg.dbhost, self.cfg.dbport)
@@ -40,7 +52,7 @@ class GeoLocator:
             print(f"Koordinaten für die Adresse suchen: {address_string}")
 
             # Adresse in geografische Koordinaten umwandeln
-            location = self.geolocator.geocode(address_string)
+            location = self.geocode_with_retry(address_string)
 
             if location:
                 row["latitude"] = location.latitude

@@ -1,6 +1,9 @@
 import psycopg2
 from psycopg2 import sql
 import psycopg2.extras
+from psycopg2.extras import execute_values
+import io
+import csv
 
 class PostgreSQLConnection:
     def __init__(self, dbname, user, password, host, port=5432):
@@ -240,18 +243,16 @@ class PostgreSQLConnection:
         if not isinstance(data_list, list) or not isinstance(data_list[0], dict):
             raise ValueError("Die Eingabedaten müssen eine Liste von Dictionaries sein.")
 
-        # Spaltennamen aus der ersten Zeile entnehmen
         columns = list(data_list[0].keys())
         values = [[row[col] for col in columns] for row in data_list]
 
-        insert_query = sql.SQL("INSERT INTO {} ({}) VALUES ({})").format(
+        insert_query = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
             sql.Identifier(table),
-            sql.SQL(', ').join(map(sql.Identifier, columns)),
-            sql.SQL(', ').join(sql.Placeholder() for _ in columns)
+            sql.SQL(', ').join(map(sql.Identifier, columns))
         )
 
         try:
-            self.cur.executemany(insert_query.as_string(self.conn), values)
+            execute_values(self.cur, insert_query.as_string(self.conn), values)
             self.conn.commit()
             print(f"{len(data_list)} Zeilen erfolgreich in '{table}' eingefügt.")
         except Exception as e:
@@ -266,18 +267,13 @@ class PostgreSQLConnection:
             raise ValueError("Die Eingabedaten müssen eine Liste von Dictionaries sein.")
 
         columns = list(data_list[0].keys())
-
-        # CSV-Daten in einen StringIO-Puffer schreiben (im Speicher)
-        buffer = io.StringIO()
-        writer = csv.writer(buffer, delimiter='\t', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-        
-        for row in data_list:
-            writer.writerow([row[col] if row[col] is not None else r'\N' for col in columns])  # \N für NULL in PostgreSQL COPY
-
-        buffer.seek(0)  # Zurück zum Anfang des Puffers
+        column_names = ', '.join(columns)
 
         try:
-            self.cur.copy_from(buffer, table, columns=columns, null='\\N')
+            with self.cur.copy(f"COPY {table} ({column_names}) FROM STDIN") as copy:
+                for row in data_list:
+                    # PostgreSQL interpretiert Python None automatisch als NULL
+                    copy.write_row([row[col] for col in columns])
             self.conn.commit()
             print(f"{len(data_list)} Zeilen erfolgreich per COPY in '{table}' eingefügt.")
         except Exception as e:

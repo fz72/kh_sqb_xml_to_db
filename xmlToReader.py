@@ -55,10 +55,13 @@ class xmlToReader:
         })
 
         kh_daten_rows = []
-        bf_rows = []
 
-        for row in self.rows:
+
+        for index, row in enumerate(self.rows, start=1):
+            print(f"Zeile {index} von {len(self.rows)}")
             # Zeile einfügen
+
+            bf_rows = []
 
             for i in range(1, 43):
                 bf_row = {}
@@ -74,8 +77,10 @@ class xmlToReader:
                 bf_row["bf_status"] = bool(row[key])
                 if key_kommentar in row:
                     bf_row["bf_kommentar"] = row[key_kommentar]
+                else:
+                    bf_row["bf_kommentar"] = None
 
-                if bf_row["bf_status"] == True or "bf_kommentar" in bf_row:
+                if bf_row["bf_status"] == True or "bf_kommentar" != None:
                     #db.insert_row("kh_bf", bf_row)
                     bf_rows.append(bf_row)
 
@@ -86,20 +91,22 @@ class xmlToReader:
                 if key_kommentar in row:
                     del row[key_kommentar]
 
-            #db.insert_row("kh_daten", row)
-            kh_daten_rows.append(row)
+            start = time.time()
+            db.insert_row("kh_daten", row)
+            print(f"Einfügen von kh_daten dauerte {time.time() - start:.2f} Sekunden")
+            #kh_daten_rows.append(row)
 
         
-        # Jetzt Batch-Inserts durchführen
-        start = time.time()
-        print(f"{len(bf_rows)} Zeilen in 'kh_bf' einfügen.")
-        db.insert_rows_copy("kh_bf", bf_rows)
-        print(f"Einfügen von kh_bf dauerte {time.time() - start:.2f} Sekunden")
+            # Jetzt Batch-Inserts durchführen
+            start = time.time()
+            print(f"{len(bf_rows)} Zeilen in 'kh_bf' einfügen.")
+            db.insert_rows("kh_bf", bf_rows)
+            print(f"Einfügen von kh_bf dauerte {time.time() - start:.2f} Sekunden")
 
-        start = time.time()
-        print(f"{len(kh_daten_rows)} Zeilen in 'kh_daten' einfügen.")
-        db.insert_rows_copy("kh_daten", kh_daten_rows)
-        print(f"Einfügen von kh_daten dauerte {time.time() - start:.2f} Sekunden")
+        #start = time.time()
+        #print(f"{len(kh_daten_rows)} Zeilen in 'kh_daten' einfügen.")
+        #db.insert_rows_copy("kh_daten", kh_daten_rows)
+        #print(f"Einfügen von kh_daten dauerte {time.time() - start:.2f} Sekunden")
 
         # Schließe die Verbindung zur Datenbank
         db.close()
