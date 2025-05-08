@@ -44,10 +44,10 @@ class GeoLocator:
             row["postleitzahl"] = address["postleitzahl"]
             row["ort"] = address["ort"]
             row["strasse"] = address["strasse"]
-            row["hausnummer"] = address["hausnummer"]
+            row["hausnummer"] = address["hausnummer"] or ''
 
             # Adresse zusammenstellen
-            address_string = f"{row['strasse']} {row['hausnummer']}, {row['postleitzahl']} {row['ort']}"
+            address_string = f"{row['strasse']} {row['hausnummer']}, {row['postleitzahl']} {row['ort']}".strip()
 
             print(f"Koordinaten für die Adresse suchen: {address_string}")
 

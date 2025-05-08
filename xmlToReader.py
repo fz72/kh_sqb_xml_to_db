@@ -15,6 +15,8 @@ from PlzData import PlzDatabase
 from config import Config
 
 class xmlToReader:
+    C_COLNAME_BF = "BF"
+
     def __init__(self):
 
         self.cfg = Config()
@@ -27,7 +29,7 @@ class xmlToReader:
                 "vollstationaere_fallzahl", "teilstationaere_fallzahl", "ambulante_fallzahl", "staeb_fallzahl",
                 "sp04_anzahl_vk", "sp04_ambulant_anzahl_vk", "sp04_stationaere_anzahl_vk", "filename"]
         for i in range(1, 43):
-            col_name = "bf" + '{:02}'.format(i)
+            col_name = self.C_COLNAME_BF + '{:02}'.format(i)
             self.cols.append(col_name)
             self.cols.append(col_name + "_kommentar")
         self.rows = []
@@ -69,7 +71,7 @@ class xmlToReader:
                 bf_row["ik"] = row["ik"]
                 bf_row["standortnummer"] = row["standortnummer"]
                 bf_row["standortnummer_alt"] = row["standortnummer_alt"]
-                bf_row["bf"] = "bf" + '{:02}'.format(i)
+                bf_row["bf"] = self.C_COLNAME_BF + '{:02}'.format(i)
 
                 key = bf_row["bf"]
                 key_kommentar = key + "_kommentar"
@@ -145,6 +147,10 @@ class xmlToReader:
                 row["jahr"] = self.cfg.xml_jahr
                 row["filename"] = filename
                 row["standortnummer_alt"] = 0 # Key
+                row["strasse"] = ""
+                row["hausnummer"] = ""
+                row["postleitzahl"] = ""
+                row["ort"] = ""
 
                 #korrekten Standort in alten Dateien lesen
                 standortNr = ""
@@ -333,11 +339,11 @@ class xmlToReader:
                     row["staeb_fallzahl"] = elem.text
 
                 for i in range(1, 43):
-                    row["bf" + '{:02}'.format(i)] = 0
+                    row[self.C_COLNAME_BF + '{:02}'.format(i)] = 0
 
                 for node in xmlparse.iter("Barrierefreiheit"):
                     for aspekt in node.iter("Barrierefreiheit_Aspekt"):
-                        bfkey = aspekt.find("BF_Schluessel").text.lower()
+                        bfkey = aspekt.find("BF_Schluessel").text
                         row[bfkey] = 1
 
                         if aspekt.find("Erlaeuterungen") is not None:
