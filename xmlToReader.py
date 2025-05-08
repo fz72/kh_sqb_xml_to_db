@@ -42,7 +42,11 @@ class xmlToReader:
         # Stelle eine Verbindung zur Datenbank her
         db.connect()
         
-        # Erstelle die Tabelle
+        # Erstelle die Tabellen
+        db.create_bf_kategorie_table()
+
+        db.create_bf_aspekte()
+
         db.create_table()
 
         db.create_bf_table()
