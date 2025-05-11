@@ -144,8 +144,8 @@ class PostgreSQLConnection:
 
         insert_data_query = """
         INSERT INTO kh_traeger_art (art_nummer, art_text) VALUES
-            (1, 'öffentlich'),
-            (2, 'freigemeinnützig'),
+            (1, 'freigemeinnützig'),
+            (2, 'öffentlich'),
             (3, 'privat')
         ON CONFLICT (art_nummer) DO NOTHING;
         """
@@ -153,12 +153,12 @@ class PostgreSQLConnection:
         try:
 
             # Tabelle löschen (falls sie existiert)
-            #self.cur.execute("DROP TABLE IF EXISTS kh_bf CASCADE;")
+            #self.cur.execute("DROP TABLE IF EXISTS kh_traeger_art CASCADE;")
 
             self.cur.execute(create_table_query)
             self.cur.execute(insert_data_query)
             self.conn.commit()
-            print("Tabelle 'kh_bf' wurde erfolgreich erstellt.")
+            print("Tabelle 'kh_traeger_art' wurde erfolgreich erstellt.")
         except Exception as e:
             print(f"Fehler beim Erstellen der Tabelle: {e}")
             self.conn.rollback()
