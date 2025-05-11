@@ -76,7 +76,16 @@ class PostgreSQLConnection:
             sp04_anzahl_vk decimal(10,2),
             sp04_ambulant_anzahl_vk decimal(10,2),
             sp04_Stationaere_anzahl_vk decimal(10,2),
-            filename varchar(255),\n"""
+            filename varchar(255)
+            bf_gesamt_absolut integer,
+            bf_gesamt_cat01 integer,
+            bf_gesamt_cat02 integer,
+            bf_gesamt_cat03 integer,
+            bf_gesamt_cat04 integer,
+            bf_gesamt_cat05 integer,
+            bf_gesamt_cat06 integer,
+            bf_gesamt_cat07 integer,
+            bf_gesamt_cat08 integer,\n"""
 
         #for i in range(1, 43):
         #    create_table_query += "bf" + '{:02}'.format(i) + " integer,\n"

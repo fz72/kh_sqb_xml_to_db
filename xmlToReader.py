@@ -117,7 +117,9 @@ class xmlToReader:
                 "lehrstatus", "akademisches_lehrkrankenhaus", "universitaetsklinikum",
                 "anzahl_betten",
                 "vollstationaere_fallzahl", "teilstationaere_fallzahl", "ambulante_fallzahl", "staeb_fallzahl",
-                "sp04_anzahl_vk", "sp04_ambulant_anzahl_vk", "sp04_stationaere_anzahl_vk", "filename"]
+                "sp04_anzahl_vk", "sp04_ambulant_anzahl_vk", "sp04_stationaere_anzahl_vk", "filename",
+                "bf_gesamt_absolut", "bf_gesamt_cat01", "bf_gesamt_cat02", "bf_gesamt_cat03", "bf_gesamt_cat04", 
+                "bf_gesamt_cat05", "bf_gesamt_cat06", "bf_gesamt_cat07", "bf_gesamt_cat08"]
         
         for aspekt in self.bf_aspekte:
             col_name = aspekt["bf"]
@@ -463,6 +465,38 @@ class xmlToReader:
                                     aspekt.find("Erlaeuterungen").text == "nein" or
                                     aspekt.find("Erlaeuterungen").text == "Nein"):
                                 row[bfkey] = 0
+
+
+                row["bf_gesamt_absolut"] = 0
+                row["bf_gesamt_cat01"] = 0
+                row["bf_gesamt_cat02"] = 0
+                row["bf_gesamt_cat03"] = 0
+                row["bf_gesamt_cat04"] = 0
+                row["bf_gesamt_cat05"] = 0
+                row["bf_gesamt_cat06"] = 0
+                row["bf_gesamt_cat07"] = 0
+                row["bf_gesamt_cat08"] = 0
+                for aspekt in self.bf_aspekte:
+                    if row[aspekt["bf"]] == 1:
+                        row["bf_gesamt_absolut"] += row[aspekt["bf"]] 
+
+                        if aspekt["bf_kategorie_id"] == "CAT01":
+                            row["bf_gesamt_cat01"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT02":
+                            row["bf_gesamt_cat02"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT03":
+                            row["bf_gesamt_cat03"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT04":
+                            row["bf_gesamt_cat04"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT05":
+                            row["bf_gesamt_cat05"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT06":
+                            row["bf_gesamt_cat06"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT07":
+                            row["bf_gesamt_cat07"] += row[aspekt["bf"]] 
+                        if aspekt["bf_kategorie_id"] == "CAT08":
+                            row["bf_gesamt_cat08"] += row[aspekt["bf"]] 
+
 
                 personal = xmlparse.find("Personal_des_Krankenhauses")
                 if personal is not None:
