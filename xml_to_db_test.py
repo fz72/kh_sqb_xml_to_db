@@ -9,7 +9,9 @@ data = {
     'ik': 12345,
     'ik_weitere': 67890,
     'standortnummer': 0,
-    'standortnummer_alt': 0
+    'standortnummer_alt': 0,
+    'universitaetsklinikum': 0,
+    'lehrstatus': 0
 }
 
 for i, aspekt in enumerate(reader.bf_aspekte):
