@@ -67,7 +67,7 @@ class PostgreSQLConnection:
             sonstiges varchar(255),
             lehrstatus BOOLEAN,
             akademisches_lehrkrankenhaus varchar(512),
-            universitaetsklinikum varchar(512),
+            universitaetsklinikum BOOLEAN,
             anzahl_betten integer,
             vollstationaere_fallzahl integer,
             teilstationaere_fallzahl integer,

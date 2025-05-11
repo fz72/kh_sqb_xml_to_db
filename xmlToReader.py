@@ -164,7 +164,7 @@ class xmlToReader:
 
             # Lehrstatus als BOOL
             row["lehrstatus"] = bool(row["lehrstatus"])
-
+            row["universitaetsklinikum"] = bool(row["universitaetsklinikum"])
 
             for aspekt in self.bf_aspekte:
                 key = aspekt["bf"]
