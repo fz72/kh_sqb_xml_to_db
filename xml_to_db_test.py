@@ -12,9 +12,9 @@ data = {
     'standortnummer_alt': 0
 }
 
-for i in range(1, 43):
+for i, aspekt in enumerate(reader.bf_aspekte):
     # 1 und 0 abwechselnd
-    data[xmlToReader.C_COLNAME_BF + '{:02}'.format(i)] = i % 2
+    data[aspekt["bf"]] = i % 2
 
 reader.rows.append(data)
 

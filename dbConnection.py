@@ -65,9 +65,9 @@ class PostgreSQLConnection:
             art varchar(100),
             art_nummer int,
             sonstiges varchar(255),
-            lehrstatus varchar(50),
-            akademisches_lehrkrankenhaus varchar(50),
-            universitaetsklinikum varchar(50),
+            lehrstatus BOOLEAN,
+            akademisches_lehrkrankenhaus varchar(512),
+            universitaetsklinikum varchar(512),
             anzahl_betten integer,
             vollstationaere_fallzahl integer,
             teilstationaere_fallzahl integer,
@@ -201,26 +201,12 @@ class PostgreSQLConnection:
         );
         """
 
-        insert_data_query = """
-        INSERT INTO bf_kategorie (bf_kategorie_id, kategorie_text) VALUES
-            ('CAT01', 'Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Sehbehinderungen oder Blindheit'),
-            ('CAT02', 'Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Mobilitätseinschränkungen'),
-            ('CAT03', 'Organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Hörbehinderung oder Gehörlosigkeit'),
-            ('CAT04', 'Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Demenz oder geistiger Behinderung'),
-            ('CAT05', 'Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße oder massiver körperlicher Beeinträchtigung'),
-            ('CAT06', 'Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Patientinnen oder Patienten mit schweren Allergien'),
-            ('CAT07', 'Berücksichtigung von Fremdsprachlichkeit und Religionsausübung'),
-            ('CAT08', 'Organisatorische Rahmenbedingungen zur Barrierefreiheit')
-        ON CONFLICT (bf_kategorie_id) DO NOTHING;
-        """
-
         try:
 
             # Tabelle löschen (falls sie existiert)
-            #self.cur.execute("DROP TABLE IF EXISTS bf_kategorie CASCADE;")
+            self.cur.execute("DROP TABLE IF EXISTS bf_kategorie CASCADE;")
 
             self.cur.execute(create_table_query)
-            self.cur.execute(insert_data_query)
             self.conn.commit()
             print("Tabelle 'bf_kategorie' wurde erfolgreich erstellt.")
         except Exception as e:
@@ -241,70 +227,12 @@ class PostgreSQLConnection:
         );
         """
 
-        insert_data_query = """
-        INSERT INTO bf_aspekte (bf, bf_text, bf_kategorie_id) VALUES
-            -- CAT01: Sehbehinderung / Blindheit
-            ('BF01', 'Kontrastreiche Beschriftungen in erhabener Profilschrift und/oder Blindenschrift/Brailleschrift', 'CAT01'),
-            ('BF02', 'Aufzug mit Sprachansage und/oder Beschriftung in erhabener Profilschrift und/oder Blindenschrift/Brailleschrift', 'CAT01'),
-            ('BF03', 'Tastbarer Gebäudeplan', 'CAT01'),
-            ('BF04', 'Schriftliche Hinweise in gut lesbarer, großer und kontrastreicher Beschriftung', 'CAT01'),
-            ('BF05', 'Leitsysteme und/oder personelle Unterstützung für sehbehinderte oder blinde Menschen', 'CAT01'),
-
-            -- CAT02: Mobilitätseinschränkungen
-            ('BF33', 'Barrierefreie Erreichbarkeit für Menschen mit Mobilitätseinschränkungen', 'CAT02'),
-            ('BF34', 'Barrierefreie Erschließung des Zugangs- und Eingangsbereichs für Menschen mit Mobilitätseinschränkungen', 'CAT02'),
-            ('BF06', 'Zimmerausstattung mit rollstuhlgerechten Sanitäranlagen', 'CAT02'),
-            ('BF08', 'Rollstuhlgerechter Zugang zu Serviceeinrichtungen', 'CAT02'),
-            ('BF09', 'Rollstuhlgerecht bedienbarer Aufzug (innen/außen)', 'CAT02'),
-            ('BF10', 'Rollstuhlgerechte Toiletten für Besucherinnen und Besucher', 'CAT02'),
-            ('BF11', 'Besondere personelle Unterstützung', 'CAT02'),
-
-            -- CAT03: Hörbehinderung / Gehörlosigkeit
-            ('BF35', 'Ausstattung von Zimmern mit Signalanlagen und/oder visuellen Anzeigen', 'CAT03'),
-            ('BF36', 'Ausstattung der Wartebereiche vor Behandlungsräumen mit einer visuellen Anzeige einer oder eines zur Behandlung aufgerufenen Patientin oder Patienten', 'CAT03'),
-            ('BF37', 'Aufzug mit visueller Anzeige', 'CAT03'),
-            ('BF38', 'Kommunikationshilfen', 'CAT03'),
-            ('BF13', 'Übertragung von Informationen in leicht verständlicher, klarer Sprache', 'CAT03'),
-
-            -- CAT04: Demenz / geistige Behinderung
-            ('BF14', 'Arbeit mit Piktogrammen', 'CAT04'),
-            ('BF15', 'Bauliche Maßnahmen für Menschen mit Demenz oder geistiger Behinderung', 'CAT04'),
-            ('BF16', 'Besondere personelle Unterstützung von Menschen mit Demenz oder geistiger Behinderung', 'CAT04'),
-
-            -- CAT05: Übergewicht / Körpergröße / massive körperliche Beeinträchtigung
-            ('BF17', 'Geeignete Betten für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-            ('BF18', 'OP-Einrichtungen für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-            ('BF19', 'Röntgeneinrichtungen für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-            ('BF20', 'Untersuchungseinrichtungen/-geräte für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-            ('BF21', 'Hilfsgeräte zur Unterstützung bei der Pflege für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-            ('BF22', 'Hilfsmittel für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße', 'CAT05'),
-
-            -- CAT06: Allergien
-            ('BF23', 'Allergenarme Zimmer', 'CAT06'),
-            ('BF24', 'Diätische Angebote', 'CAT06'),
-
-            -- CAT07: Fremdsprachlichkeit / Religion
-            ('BF25', 'Dolmetscherdienste', 'CAT07'),
-            ('BF26', 'Behandlungsmöglichkeiten durch fremdsprachiges Personal', 'CAT07'),
-            ('BF29', 'Mehrsprachiges Informationsmaterial über das Krankenhaus', 'CAT07'),
-            ('BF30', 'Mehrsprachige Internetseite', 'CAT07'),
-            ('BF31', 'Mehrsprachiges Orientierungssystem (Ausschilderung)', 'CAT07'),
-            ('BF32', 'Räumlichkeiten zur religiösen und spirituellen Besinnung', 'CAT07'),
-
-            -- CAT08: Barrierefreiheit allgemein
-            ('BF39', 'Informationen zur Barrierefreiheit auf der Internetseite des Krankenhauses', 'CAT08'),
-            ('BF40', 'Barrierefreie Eigenpräsentation/Informationsdarbietung auf der Krankenhaushomepage', 'CAT08'),
-            ('BF41', 'Barrierefreie Zugriffsmöglichkeiten auf Notrufsysteme', 'CAT08')
-        ON CONFLICT (bf) DO NOTHING;
-        """
-
         try:
 
             # Tabelle löschen (falls sie existiert)
-            #self.cur.execute("DROP TABLE IF EXISTS bf_aspekte CASCADE;")
+            self.cur.execute("DROP TABLE IF EXISTS bf_aspekte CASCADE;")
 
             self.cur.execute(create_table_query)
-            self.cur.execute(insert_data_query)
             self.conn.commit()
             print("Tabelle 'bf_aspekte' wurde erfolgreich erstellt.")
         except Exception as e:

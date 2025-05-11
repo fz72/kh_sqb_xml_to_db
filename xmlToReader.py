@@ -15,11 +15,101 @@ from PlzData import PlzDatabase
 from config import Config
 
 class xmlToReader:
-    C_COLNAME_BF = "BF"
-
     def __init__(self):
 
         self.cfg = Config()
+
+        self.bf_kategorie = [
+            {
+                "bf_kategorie_id": "CAT01",
+                "kategorie_text": "Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Sehbehinderungen oder Blindheit"
+            },
+            {
+                "bf_kategorie_id": "CAT02",
+                "kategorie_text": "Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Mobilitätseinschränkungen"
+            },
+            {
+                "bf_kategorie_id": "CAT03",
+                "kategorie_text": "Organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Hörbehinderung oder Gehörlosigkeit"
+            },
+            {
+                "bf_kategorie_id": "CAT04",
+                "kategorie_text": "Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Menschen mit Demenz oder geistiger Behinderung"
+            },
+            {
+                "bf_kategorie_id": "CAT05",
+                "kategorie_text": "Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße oder massiver körperlicher Beeinträchtigung"
+            },
+            {
+                "bf_kategorie_id": "CAT06",
+                "kategorie_text": "Bauliche und organisatorische Maßnahmen zur Berücksichtigung des besonderen Bedarfs von Patientinnen oder Patienten mit schweren Allergien"
+            },
+            {
+                "bf_kategorie_id": "CAT07",
+                "kategorie_text": "Berücksichtigung von Fremdsprachlichkeit und Religionsausübung"
+            },
+            {
+                "bf_kategorie_id": "CAT08",
+                "kategorie_text": "Organisatorische Rahmenbedingungen zur Barrierefreiheit"
+            }
+        ]
+
+
+        self.bf_aspekte = [
+            # CAT01: Sehbehinderung / Blindheit
+            {"bf": "BF01", "bf_text": "Kontrastreiche Beschriftungen in erhabener Profilschrift und/oder Blindenschrift/Brailleschrift", "bf_kategorie_id": "CAT01"},
+            {"bf": "BF02", "bf_text": "Aufzug mit Sprachansage und/oder Beschriftung in erhabener Profilschrift und/oder Blindenschrift/Brailleschrift", "bf_kategorie_id": "CAT01"},
+            {"bf": "BF03", "bf_text": "Tastbarer Gebäudeplan", "bf_kategorie_id": "CAT01"},
+            {"bf": "BF04", "bf_text": "Schriftliche Hinweise in gut lesbarer, großer und kontrastreicher Beschriftung", "bf_kategorie_id": "CAT01"},
+            {"bf": "BF05", "bf_text": "Leitsysteme und/oder personelle Unterstützung für sehbehinderte oder blinde Menschen", "bf_kategorie_id": "CAT01"},
+
+            # CAT02: Mobilitätseinschränkungen
+            {"bf": "BF33", "bf_text": "Barrierefreie Erreichbarkeit für Menschen mit Mobilitätseinschränkungen", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF34", "bf_text": "Barrierefreie Erschließung des Zugangs- und Eingangsbereichs für Menschen mit Mobilitätseinschränkungen", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF06", "bf_text": "Zimmerausstattung mit rollstuhlgerechten Sanitäranlagen", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF08", "bf_text": "Rollstuhlgerechter Zugang zu Serviceeinrichtungen", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF09", "bf_text": "Rollstuhlgerecht bedienbarer Aufzug (innen/außen)", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF10", "bf_text": "Rollstuhlgerechte Toiletten für Besucherinnen und Besucher", "bf_kategorie_id": "CAT02"},
+            {"bf": "BF11", "bf_text": "Besondere personelle Unterstützung", "bf_kategorie_id": "CAT02"},
+
+            # CAT03: Hörbehinderung / Gehörlosigkeit
+            {"bf": "BF35", "bf_text": "Ausstattung von Zimmern mit Signalanlagen und/oder visuellen Anzeigen", "bf_kategorie_id": "CAT03"},
+            {"bf": "BF36", "bf_text": "Ausstattung der Wartebereiche vor Behandlungsräumen mit einer visuellen Anzeige einer oder eines zur Behandlung aufgerufenen Patientin oder Patienten", "bf_kategorie_id": "CAT03"},
+            {"bf": "BF37", "bf_text": "Aufzug mit visueller Anzeige", "bf_kategorie_id": "CAT03"},
+            {"bf": "BF38", "bf_text": "Kommunikationshilfen", "bf_kategorie_id": "CAT03"},
+            {"bf": "BF13", "bf_text": "Übertragung von Informationen in leicht verständlicher, klarer Sprache", "bf_kategorie_id": "CAT03"},
+
+            # CAT04: Demenz / geistige Behinderung
+            {"bf": "BF14", "bf_text": "Arbeit mit Piktogrammen", "bf_kategorie_id": "CAT04"},
+            {"bf": "BF15", "bf_text": "Bauliche Maßnahmen für Menschen mit Demenz oder geistiger Behinderung", "bf_kategorie_id": "CAT04"},
+            {"bf": "BF16", "bf_text": "Besondere personelle Unterstützung von Menschen mit Demenz oder geistiger Behinderung", "bf_kategorie_id": "CAT04"},
+
+            # CAT05: Übergewicht / Körpergröße / massive körperliche Beeinträchtigung
+            {"bf": "BF17", "bf_text": "Geeignete Betten für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+            {"bf": "BF18", "bf_text": "OP-Einrichtungen für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+            {"bf": "BF19", "bf_text": "Röntgeneinrichtungen für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+            {"bf": "BF20", "bf_text": "Untersuchungseinrichtungen/-geräte für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+            {"bf": "BF21", "bf_text": "Hilfsgeräte zur Unterstützung bei der Pflege für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+            {"bf": "BF22", "bf_text": "Hilfsmittel für Patientinnen und Patienten mit besonderem Übergewicht oder besonderer Körpergröße", "bf_kategorie_id": "CAT05"},
+
+            # CAT06: Allergien
+            {"bf": "BF23", "bf_text": "Allergenarme Zimmer", "bf_kategorie_id": "CAT06"},
+            {"bf": "BF24", "bf_text": "Diätische Angebote", "bf_kategorie_id": "CAT06"},
+
+            # CAT07: Fremdsprachlichkeit / Religion
+            {"bf": "BF25", "bf_text": "Dolmetscherdienste", "bf_kategorie_id": "CAT07"},
+            {"bf": "BF26", "bf_text": "Behandlungsmöglichkeiten durch fremdsprachiges Personal", "bf_kategorie_id": "CAT07"},
+            {"bf": "BF29", "bf_text": "Mehrsprachiges Informationsmaterial über das Krankenhaus", "bf_kategorie_id": "CAT07"},
+            {"bf": "BF30", "bf_text": "Mehrsprachige Internetseite", "bf_kategorie_id": "CAT07"},
+            {"bf": "BF31", "bf_text": "Mehrsprachiges Orientierungssystem (Ausschilderung)", "bf_kategorie_id": "CAT07"},
+            {"bf": "BF32", "bf_text": "Räumlichkeiten zur religiösen und spirituellen Besinnung", "bf_kategorie_id": "CAT07"},
+
+            # CAT08: Barrierefreiheit allgemein
+            {"bf": "BF39", "bf_text": "Informationen zur Barrierefreiheit auf der Internetseite des Krankenhauses", "bf_kategorie_id": "CAT08"},
+            {"bf": "BF40", "bf_text": "Barrierefreie Eigenpräsentation/Informationsdarbietung auf der Krankenhaushomepage", "bf_kategorie_id": "CAT08"},
+            {"bf": "BF41", "bf_text": "Barrierefreie Zugriffsmöglichkeiten auf Notrufsysteme", "bf_kategorie_id": "CAT08"}
+        ]
+
 
         self.cols = ["jahr", "name", "ik", "ik_weitere", "standortnummer", "standortnummer_datei", "standortnummer_alt",
                 "strasse", "hausnummer", "postleitzahl", "ort", "bundesland", "bundesland_plz", "landkreis",
@@ -28,8 +118,9 @@ class xmlToReader:
                 "anzahl_betten",
                 "vollstationaere_fallzahl", "teilstationaere_fallzahl", "ambulante_fallzahl", "staeb_fallzahl",
                 "sp04_anzahl_vk", "sp04_ambulant_anzahl_vk", "sp04_stationaere_anzahl_vk", "filename"]
-        for i in range(1, 43):
-            col_name = self.C_COLNAME_BF + '{:02}'.format(i)
+        
+        for aspekt in self.bf_aspekte:
+            col_name = aspekt["bf"]
             self.cols.append(col_name)
             self.cols.append(col_name + "_kommentar")
         self.rows = []
@@ -44,8 +135,10 @@ class xmlToReader:
         
         # Erstelle die Tabellen
         db.create_bf_kategorie_table()
+        db.insert_rows("bf_kategorie", self.bf_kategorie)
 
         db.create_bf_aspekte()
+        db.insert_rows("bf_aspekte", self.bf_aspekte)
 
         db.create_table()
 
@@ -69,15 +162,20 @@ class xmlToReader:
 
             bf_rows = []
 
-            for i in range(1, 43):
+            # Lehrstatus als BOOL
+            row["lehrstatus"] = bool(row["lehrstatus"])
+
+
+            for aspekt in self.bf_aspekte:
+                key = aspekt["bf"]
+
                 bf_row = {}
                 bf_row["jahr"] = row["jahr"]
                 bf_row["ik"] = row["ik"]
                 bf_row["standortnummer"] = row["standortnummer"]
                 bf_row["standortnummer_alt"] = row["standortnummer_alt"]
-                bf_row["bf"] = self.C_COLNAME_BF + '{:02}'.format(i)
+                bf_row["bf"] = key
 
-                key = bf_row["bf"]
                 key_kommentar = key + "_kommentar"
 
                 bf_row["bf_status"] = bool(row[key])
@@ -302,7 +400,8 @@ class xmlToReader:
                                     row["art_nummer"] = 2
 
 
-                kh_art = xmlparse.find("krankenhaus_art")
+                row["lehrstatus"] = "0"
+                kh_art = xmlparse.find("Krankenhaus_Art")
                 if kh_art is None:
                     row["lehrstatus"] = "0"
                 else:
@@ -342,8 +441,8 @@ class xmlToReader:
                 if elem is not None:
                     row["staeb_fallzahl"] = elem.text
 
-                for i in range(1, 43):
-                    row[self.C_COLNAME_BF + '{:02}'.format(i)] = 0
+                for aspekt in self.bf_aspekte:
+                    row[aspekt["bf"]] = 0
 
                 for node in xmlparse.iter("Barrierefreiheit"):
                     for aspekt in node.iter("Barrierefreiheit_Aspekt"):
