@@ -373,6 +373,11 @@ class xmlToReader:
                         row["landkreis"] = plz_data.landkreis
                         row["bundesland_plz"] = plz_data.bundesland
 
+                # IK 51 ist nicht relevant
+                if str(row["ik"]).startswith("51"):
+                    print(f"IK { row["ik"]} wird übersprungen, da 51* nicht relevant")
+                    continue
+
                 row["art_nummer"] = 0
                 for node in xmlparse.iter("Krankenhaustraeger"):
                     elem = node.find("Name")
@@ -400,12 +405,13 @@ class xmlToReader:
                                     row["art_nummer"] = 2
 
 
-                row["lehrstatus"] = "0"
+                row["lehrstatus"] = 0
+                row["universitaetsklinikum"] = 0
                 kh_art = xmlparse.find("Krankenhaus_Art")
                 if kh_art is None:
-                    row["lehrstatus"] = "0"
+                    row["lehrstatus"] = 0
                 else:
-                    row["lehrstatus"] = "1"
+                    row["lehrstatus"] = 1
                     lehrkrankenhaus = kh_art.find("Akademisches_Lehrkrankenhaus")
                     if lehrkrankenhaus is not None:
                         row["akademisches_lehrkrankenhaus"] = ""
@@ -418,7 +424,7 @@ class xmlToReader:
 
                     uni = kh_art.find("Universitaetsklinikum")
                     if uni is not None:
-                        row["universitaetsklinikum"] = "1"
+                        row["universitaetsklinikum"] = 1
 
                 elem = xmlparse.find("Anzahl_Betten")
                 if elem is not None:
