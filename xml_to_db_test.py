@@ -16,7 +16,7 @@ data = {
 
 for i, aspekt in enumerate(reader.bf_aspekte):
     # 1 und 0 abwechselnd
-    data[aspekt["bf"]] = i % 2
+    data[aspekt["bf"].lower()] = i % 2
 
 reader.rows.append(data)
 
