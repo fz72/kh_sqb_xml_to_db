@@ -76,7 +76,7 @@ class PostgreSQLConnection:
             sp04_anzahl_vk decimal(10,2),
             sp04_ambulant_anzahl_vk decimal(10,2),
             sp04_Stationaere_anzahl_vk decimal(10,2),
-            filename varchar(255)
+            filename varchar(255),
             bf_gesamt_absolut integer,
             bf_gesamt_cat01 integer,
             bf_gesamt_cat02 integer,
@@ -86,10 +86,6 @@ class PostgreSQLConnection:
             bf_gesamt_cat06 integer,
             bf_gesamt_cat07 integer,
             bf_gesamt_cat08 integer,\n"""
-
-        #for i in range(1, 43):
-        #    create_table_query += "bf" + '{:02}'.format(i) + " integer,\n"
-        #    create_table_query += "bf" + '{:02}'.format(i) + "_kommentar varchar(500),\n"
 
         create_table_query += """
             PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt)
@@ -122,6 +118,7 @@ class PostgreSQLConnection:
             bf VARCHAR(4),
             bf_status BOOLEAN,
             bf_kommentar VARCHAR(512),
+            bf_error BOOLEAN,
             PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt, bf)
         );
         """
@@ -213,7 +210,7 @@ class PostgreSQLConnection:
         try:
 
             # Tabelle löschen (falls sie existiert)
-            self.cur.execute("DROP TABLE IF EXISTS bf_kategorie CASCADE;")
+            #self.cur.execute("DROP TABLE IF EXISTS bf_kategorie CASCADE;")
 
             self.cur.execute(create_table_query)
             self.conn.commit()
@@ -239,7 +236,7 @@ class PostgreSQLConnection:
         try:
 
             # Tabelle löschen (falls sie existiert)
-            self.cur.execute("DROP TABLE IF EXISTS bf_aspekte CASCADE;")
+            #self.cur.execute("DROP TABLE IF EXISTS bf_aspekte CASCADE;")
 
             self.cur.execute(create_table_query)
             self.conn.commit()
