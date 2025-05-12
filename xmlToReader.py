@@ -186,16 +186,42 @@ class xmlToReader:
                 else:
                     bf_row["bf_kommentar"] = None
 
-                if bf_row["bf_status"] == True or "bf_kommentar" != None:
-                    #db.insert_row("kh_bf", bf_row)
-                    bf_rows.append(bf_row)
+                bf_rows.append(bf_row)
 
-                # Nicht vorhandene Spalten löschen                
+                # Spalten löschen für insert in db              
                 if key in row:
                     del row[key]
 
                 if key_kommentar in row:
                     del row[key_kommentar]
+
+            # Fehlerhafte Aspekte in row suchen und ablegen+löschen
+            for i in range(1, 43):
+                key = "bf" + '{:02}'.format(i)
+                if key in row:
+                    key_kommentar = key + "_kommentar"
+
+                    bf_row = {}
+                    bf_row["jahr"] = row["jahr"]
+                    bf_row["ik"] = row["ik"]
+                    bf_row["standortnummer"] = row["standortnummer"]
+                    bf_row["standortnummer_alt"] = row["standortnummer_alt"]
+                    bf_row["bf"] = key.upper()
+
+                    bf_row["bf_error"] = True
+                    bf_row["bf_status"] = bool(row[key])
+                    if key_kommentar in row:
+                        bf_row["bf_kommentar"] = row[key_kommentar]
+                    else:
+                        bf_row["bf_kommentar"] = None
+
+                    bf_rows.append(bf_row)
+
+                    # Nicht vorhandene Spalten löschen                
+                    del row[key]
+
+                    if key_kommentar in row:
+                        del row[key_kommentar]
 
             start = time.time()
             db.insert_row("kh_daten", row)
@@ -262,9 +288,16 @@ class xmlToReader:
                     standortNr = filename[10:12]
                     row["standortnummer_datei"] = standortNr
 
-                # für 2013 ergänzt
+                # clear
+                kontaktdaten = None
+                standort = None
+
+                kh = xmlparse.find("Krankenhaus")
+                if kh is not None:
+                    kontaktdaten = kh.find("Kontaktdaten")
+
                 standort = xmlparse.find("Standort_dieses_Berichts")
-                if standort is not None:
+                if standort is not None and kontaktdaten is None:
                     kontaktdaten = standort.find("Kontaktdaten")
                 elif standortNr != "":
                     standort = xmlparse.find("Standorte_des_Krankenhauses")
@@ -288,7 +321,7 @@ class xmlToReader:
                             standort = xmlparse.find("Einziger_Standort")
                             kontaktdaten = node.find("Kontaktdaten")
 
-                if standort is None or kontaktdaten is None:
+                if kontaktdaten is None:
                     print("Standortfehler")
                 else:
                     elem = kontaktdaten.find("Name")
