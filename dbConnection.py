@@ -48,6 +48,7 @@ class PostgreSQLConnection:
         create_table_query = """
         CREATE TABLE IF NOT EXISTS kh_daten (
             jahr integer NOT NULL,
+            filename varchar(255),
             name varchar(255),
             ik bigint NOT NULL,
             ik_weitere bigint,
@@ -76,7 +77,6 @@ class PostgreSQLConnection:
             sp04_anzahl_vk decimal(10,2),
             sp04_ambulant_anzahl_vk decimal(10,2),
             sp04_Stationaere_anzahl_vk decimal(10,2),
-            filename varchar(255),
             bf_gesamt_absolut integer,
             bf_gesamt_cat01 integer,
             bf_gesamt_cat02 integer,
@@ -88,7 +88,7 @@ class PostgreSQLConnection:
             bf_gesamt_cat08 integer,\n"""
 
         create_table_query += """
-            PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt)
+            PRIMARY KEY (jahr, filename)
         );
         """
         try:
@@ -112,14 +112,12 @@ class PostgreSQLConnection:
         create_table_query = """
         CREATE TABLE IF NOT EXISTS kh_bf (
             jahr INTEGER NOT NULL,
-            ik BIGINT NOT NULL,
-            standortnummer BIGINT,
-            standortnummer_alt BIGINT,
+            filename varchar(255),
             bf VARCHAR(4),
             bf_status BOOLEAN,
             bf_kommentar VARCHAR(512),
             bf_error BOOLEAN,
-            PRIMARY KEY (jahr, ik, standortnummer, standortnummer_alt, bf)
+            PRIMARY KEY (jahr, filename, bf)
         );
         """
 
