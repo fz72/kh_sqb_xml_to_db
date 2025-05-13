@@ -173,9 +173,7 @@ class xmlToReader:
 
                 bf_row = {}
                 bf_row["jahr"] = row["jahr"]
-                bf_row["ik"] = row["ik"]
-                bf_row["standortnummer"] = row["standortnummer"]
-                bf_row["standortnummer_alt"] = row["standortnummer_alt"]
+                bf_row["filename"] = row["filename"]
                 bf_row["bf"] = key.upper()
 
                 key_kommentar = key + "_kommentar"
@@ -203,9 +201,7 @@ class xmlToReader:
 
                     bf_row = {}
                     bf_row["jahr"] = row["jahr"]
-                    bf_row["ik"] = row["ik"]
-                    bf_row["standortnummer"] = row["standortnummer"]
-                    bf_row["standortnummer_alt"] = row["standortnummer_alt"]
+                    bf_row["filename"] = row["filename"]
                     bf_row["bf"] = key.upper()
 
                     bf_row["bf_error"] = True
@@ -276,6 +272,7 @@ class xmlToReader:
 
                 row["jahr"] = self.cfg.xml_jahr
                 row["filename"] = filename
+                row["standortnummer"] = ""
                 row["standortnummer_alt"] = 0 # Key
                 row["strasse"] = ""
                 row["hausnummer"] = ""
@@ -292,14 +289,11 @@ class xmlToReader:
                 kontaktdaten = None
                 standort = None
 
-                kh = xmlparse.find("Krankenhaus")
-                if kh is not None:
-                    kontaktdaten = kh.find("Kontaktdaten")
-
+                # für 2013 ergänzt
                 standort = xmlparse.find("Standort_dieses_Berichts")
-                if standort is not None and kontaktdaten is None:
+                if standort is not None:
                     kontaktdaten = standort.find("Kontaktdaten")
-                elif standortNr != "":
+                if standortNr != "":
                     standort = xmlparse.find("Standorte_des_Krankenhauses")
                     if standort is not None:
                         for node in standort.iter("Kontaktdaten"):
@@ -307,7 +301,9 @@ class xmlToReader:
                             if elem is not None and elem.text == standortNr:
                                 kontaktdaten = node
 
-                if standort is None or kontaktdaten is None:
+
+
+                if kontaktdaten is None:
                     # 2022
                     for node in xmlparse.iter("Krankenhaus"):
                         standort = node.find("Mehrere_Standorte")
@@ -320,6 +316,7 @@ class xmlToReader:
                         if standort is None:
                             standort = xmlparse.find("Einziger_Standort")
                             kontaktdaten = node.find("Kontaktdaten")
+
 
                 if kontaktdaten is None:
                     print("Standortfehler")
@@ -374,12 +371,19 @@ class xmlToReader:
                     elem = kontaktdaten.find("Standortnummer")
                     if elem is not None:
                         row["standortnummer"] = elem.text
+                    if standortNr != "" and row["standortnummer"] != standortNr:
+                        print(f"Verwende Standortnummer aus Datei: {row['standortnummer']} -> {standortNr}")
+                        row["standortnummer"] = standortNr
+
                     elem = kontaktdaten.find("Standortnummer_alt")
                     if elem is not None:
                         if elem.text.isdigit():
                             row["standortnummer_alt"] = elem.text
                         else:
                             print("Standortnummer_Alt ist nicht numerisch: " + elem.text)
+
+                    if standortNr != "" and row["standortnummer"] != standortNr:
+                        print("Standortnummerfehler")
 
                     kontakt_zugang = kontaktdaten.find("Kontakt_Zugang")
                     if kontakt_zugang is None:
@@ -444,22 +448,25 @@ class xmlToReader:
                 row["universitaetsklinikum"] = 0
                 kh_art = xmlparse.find("Krankenhaus_Art")
                 if kh_art is None:
-                    row["lehrstatus"] = 0
+                    elem = xmlparse
                 else:
-                    row["lehrstatus"] = 1
-                    lehrkrankenhaus = kh_art.find("Akademisches_Lehrkrankenhaus")
-                    if lehrkrankenhaus is not None:
-                        row["akademisches_lehrkrankenhaus"] = ""
-                        for node in lehrkrankenhaus:
-                            if node.tag == "Name_Universitaet":
-                                if row["akademisches_lehrkrankenhaus"] == "":
-                                    row["akademisches_lehrkrankenhaus"] = node.text
-                                else:
-                                    row["akademisches_lehrkrankenhaus"] += ";" + node.text
+                    elem = kh_art
 
-                    uni = kh_art.find("Universitaetsklinikum")
-                    if uni is not None:
-                        row["universitaetsklinikum"] = 1
+                lehrkrankenhaus = elem.find("Akademisches_Lehrkrankenhaus")
+                if lehrkrankenhaus is not None:
+                    row["lehrstatus"] = 1
+                    row["akademisches_lehrkrankenhaus"] = ""
+                    for node in lehrkrankenhaus:
+                        if node.tag == "Name_Universitaet":
+                            if row["akademisches_lehrkrankenhaus"] == "":
+                                row["akademisches_lehrkrankenhaus"] = node.text
+                            else:
+                                row["akademisches_lehrkrankenhaus"] += ";" + node.text
+
+                uni = elem.find("Universitaetsklinikum")
+                if uni is not None:
+                    row["universitaetsklinikum"] = 1
+
 
                 elem = xmlparse.find("Anzahl_Betten")
                 if elem is not None:
