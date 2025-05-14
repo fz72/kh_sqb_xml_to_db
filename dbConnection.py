@@ -404,11 +404,15 @@ class PostgreSQLConnection:
             return
 
         query = """
-        SELECT DISTINCT strasse, hausnummer, ort, postleitzahl
-        FROM kh_daten
-        WHERE (strasse, hausnummer, ort, postleitzahl) NOT IN (
-            SELECT strasse, hausnummer, ort, postleitzahl FROM kh_location
-        )
+        SELECT DISTINCT kh.jahr, kh.ik, kh.standortnummer, kh.filename, kh.strasse, kh.hausnummer, kh.ort, kh.postleitzahl
+            FROM kh_daten AS kh
+            WHERE NOT EXISTS (  SELECT 1 
+                FROM kh_location AS loc
+                WHERE loc.strasse = kh.strasse
+                    AND loc.hausnummer = kh.hausnummer
+                    AND loc.ort = kh.ort
+                    AND loc.postleitzahl = kh.postleitzahl
+            )
         """
 
         try:
