@@ -465,6 +465,7 @@ class xmlToReader:
 
                 uni = elem.find("Universitaetsklinikum")
                 if uni is not None:
+                    row["lehrstatus"] = 1
                     row["universitaetsklinikum"] = 1
 
 
